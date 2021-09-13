@@ -4,7 +4,7 @@ class Pokemon
     attr_accessor :name, :type, :db
     attr_reader :id
 
-    def initialize(id: nil, name:, type:, db:)
+    def initialize(id:, name:, type:, db:)
         @id = id
         @name = name
         @type = type
@@ -13,20 +13,20 @@ class Pokemon
 
     def self.save(name, type, db)
         sql= <<-SQL
-            INSERT INTO pokemon (name, type, db)
-            VALUES (?, ?, ?);
+            INSERT INTO pokemon (name, type)
+            VALUES (?, ?);
             SQL
-
-        @db = DB[:conn].execute(sql, self.name, self.type, self.db)
-        @id = DB[:conn].execute("SELECT last_insert_rowid()")[0][0]
+            db.execute(sql, name, type)
+        #@db = DB[:conn].execute(sql, name, type)
     end
 
-    def self.find
+    def self.find(id, db)
         sql = "SELECT * FROM pokemon WHERE id = ?"
-        result = DB[:conn].execute(sql, id)[0][0]
-        new_pokemon = Pokemon.new(result[0], result[1], result[2])
-        new_pokemon
+        result = db.execute(sql, id)[0]
+        
+        new_pokemon = Pokemon.new(id: result[0], name: result[1], type: result[2], db: db)
     end
+
 
 
 
